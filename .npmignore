@@ -1,0 +1,37 @@
+# Source files
+src/
+tsconfig.json
+
+# Tests
+**/__tests__/
+**/*.test.ts
+**/*.spec.ts
+
+# Examples (keep in npm package)
+# src/examples/
+
+# Documentation source (keep processed docs)
+# docs/
+
+# Development files
+.gitignore
+.prettierrc
+.eslintrc
+*.md.backup
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.github/
+
+

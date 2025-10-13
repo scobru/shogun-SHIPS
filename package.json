@@ -1,0 +1,134 @@
+{
+  "name": "shogun-ship",
+  "version": "1.0.0",
+  "description": "SHIP (Shogun Interface Proposals) - Standards for decentralized authentication, messaging, wallets, and storage",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./ship-00": {
+      "types": "./dist/types/implementation/SHIP_00.d.ts",
+      "import": "./dist/implementation/SHIP_00.js",
+      "require": "./dist/implementation/SHIP_00.js",
+      "default": "./dist/implementation/SHIP_00.js"
+    },
+    "./ship-01": {
+      "types": "./dist/types/implementation/SHIP_01.d.ts",
+      "import": "./dist/implementation/SHIP_01.js",
+      "require": "./dist/implementation/SHIP_01.js",
+      "default": "./dist/implementation/SHIP_01.js"
+    },
+    "./ship-02": {
+      "types": "./dist/types/implementation/SHIP_02.d.ts",
+      "import": "./dist/implementation/SHIP_02.js",
+      "require": "./dist/implementation/SHIP_02.js",
+      "default": "./dist/implementation/SHIP_02.js"
+    },
+    "./ship-03": {
+      "types": "./dist/types/implementation/SHIP_03.d.ts",
+      "import": "./dist/implementation/SHIP_03.js",
+      "require": "./dist/implementation/SHIP_03.js",
+      "default": "./dist/implementation/SHIP_03.js"
+    },
+    "./ship-04": {
+      "types": "./dist/types/implementation/SHIP_04.d.ts",
+      "import": "./dist/implementation/SHIP_04.js",
+      "require": "./dist/implementation/SHIP_04.js",
+      "default": "./dist/implementation/SHIP_04.js"
+    },
+    "./ship-05": {
+      "types": "./dist/types/implementation/SHIP_05.d.ts",
+      "import": "./dist/implementation/SHIP_05.js",
+      "require": "./dist/implementation/SHIP_05.js",
+      "default": "./dist/implementation/SHIP_05.js"
+    },
+    "./ship-06": {
+      "types": "./dist/types/implementation/SHIP_06.d.ts",
+      "import": "./dist/implementation/SHIP_06.js",
+      "require": "./dist/implementation/SHIP_06.js",
+      "default": "./dist/implementation/SHIP_06.js"
+    },
+    "./interfaces/*": {
+      "types": "./dist/types/interfaces/*.d.ts",
+      "import": "./dist/interfaces/*.js",
+      "require": "./dist/interfaces/*.js",
+      "default": "./dist/interfaces/*.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "yarn clean && yarn format && tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "identity": "tsx src/examples/identity-cli.ts",
+    "messenger": "tsx src/examples/messenger-cli.ts",
+    "wallet": "tsx src/examples/wallet-cli.ts",
+    "stealth": "tsx src/examples/stealth-cli.ts",
+    "storage": "tsx src/examples/storage-cli.ts",
+    "vault": "tsx src/examples/vault-cli.ts"
+  },
+  "keywords": [
+    "shogun",
+    "ship",
+    "decentralized",
+    "authentication",
+    "messaging",
+    "wallet",
+    "ethereum",
+    "gundb",
+    "ipfs",
+    "privacy",
+    "stealth-addresses",
+    "standards"
+  ],
+  "author": "Scobru",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scobru/shogun-ship.git"
+  },
+  "bugs": {
+    "url": "https://github.com/scobru/shogun-ship/issues"
+  },
+  "homepage": "https://github.com/scobru/shogun-ship#readme",
+  "peerDependencies": {
+    "shogun-core": "^3.3.5"
+  },
+  "dependencies": {
+    "@fluidkey/stealth-account-kit": "^1.1.0",
+    "@noble/curves": "^1.9.1",
+    "@scure/bip32": "^2.0.1",
+    "ethers": "^6.13.5",
+    "figlet": "^1.9.3",
+    "gun": "git+https://github.com/amark/gun.git",
+    "shogun-core": "^3.3.6",
+    "shogun-ipfs": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.11.24",
+    "jest": "^29.7.0",
+    "prettier": "^3.5.3",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.3.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
