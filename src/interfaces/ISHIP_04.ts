@@ -7,7 +7,6 @@
  * ## Abstract
  *
  * This standard extends SHIP-00 to provide multiple authentication methods:
- * - OAuth (Google, GitHub, Discord, etc.)
  * - WebAuthn/Passkeys (biometric authentication)
  * - Nostr (decentralized social protocol)
  * - Web3 (MetaMask, WalletConnect, etc.)
@@ -15,7 +14,7 @@
  * ## Dependencies
  *
  * - SHIP-00: Base identity foundation
- * - Shogun Core Plugins: OAuth, WebAuthn, Nostr, Web3
+ * - Shogun Core Plugins: WebAuthn, Nostr, Web3
  *
  * ## Inclusive Hierarchy
  *
@@ -32,11 +31,11 @@
  * const identity = new SHIP_00(config);
  * const multiAuth = new SHIP_04(identity);
  *
- * // Login with OAuth
- * await multiAuth.loginWithOAuth('google');
- *
- * // Or WebAuthn
+ * // Login with WebAuthn
  * await multiAuth.loginWithWebAuthn('alice');
+ *
+ * // Or Web3
+ * await multiAuth.connectWeb3();
  *
  * // Result is SHIP-00 compatible!
  * const user = identity.getCurrentUser();
@@ -55,7 +54,6 @@ import type { ISHIP_00, SEAPair, AuthResult } from "./ISHIP_00";
  */
 export const enum AuthMethod {
   PASSWORD = "password", // Traditional (SHIP-00)
-  OAUTH = "oauth", // OAuth providers
   WEBAUTHN = "webauthn", // Biometric/Passkey
   NOSTR = "nostr", // Nostr protocol
   WEB3 = "web3", // Web3 wallets
@@ -64,30 +62,9 @@ export const enum AuthMethod {
 // Also export as string union type
 export type AuthMethodType =
   | "password"
-  | "oauth"
   | "webauthn"
   | "nostr"
   | "web3";
-
-/**
- * OAuth provider types
- * Note: Must match Shogun Core plugin types
- */
-export type OAuthProvider =
-  | "google"
-  | "github"
-  | "discord"
-  | "twitter"
-  | "custom";
-
-/**
- * OAuth authentication result
- */
-export interface OAuthAuthResult extends AuthResult {
-  provider?: OAuthProvider;
-  email?: string;
-  profilePicture?: string;
-}
 
 /**
  * WebAuthn authentication result
@@ -128,18 +105,6 @@ export interface AuthMethodInfo {
  * SHIP-04 Configuration
  */
 export interface SHIP_04_Config {
-  /** Enable OAuth authentication */
-  enableOAuth?: boolean;
-  /** OAuth providers configuration */
-  oauthProviders?: {
-    [key in OAuthProvider]?: {
-      clientId: string;
-      clientSecret?: string; // Server-side only
-      redirectUri: string;
-      scopes?: string[];
-    };
-  };
-
   /** Enable WebAuthn authentication */
   enableWebAuthn?: boolean;
   /** WebAuthn RP name */
@@ -191,38 +156,6 @@ export interface ISHIP_04 {
    */
   getIdentity(): ISHIP_00;
 
-  // ========================================================================
-  // OAUTH AUTHENTICATION
-  // ========================================================================
-
-  /**
-   * @notice Login with OAuth provider
-   * @param provider OAuth provider (google, github, etc.)
-   * @param redirectUri Optional redirect URI override
-   * @returns Promise resolving to OAuth auth result
-   */
-  loginWithOAuth(
-    provider: OAuthProvider,
-    redirectUri?: string
-  ): Promise<OAuthAuthResult>;
-
-  /**
-   * @notice Handle OAuth callback after redirect
-   * @param code Authorization code from OAuth provider
-   * @param provider OAuth provider
-   * @returns Promise resolving to auth result
-   */
-  handleOAuthCallback(
-    code: string,
-    provider: OAuthProvider
-  ): Promise<OAuthAuthResult>;
-
-  /**
-   * @notice Check if OAuth is available and configured
-   * @param provider Optional specific provider to check
-   * @returns True if OAuth is available
-   */
-  isOAuthAvailable(provider?: OAuthProvider): boolean;
 
   // ========================================================================
   // WEBAUTHN AUTHENTICATION
@@ -321,7 +254,6 @@ export interface ISHIP_04 {
 // ============================================================================
 
 export type SHIP_04_Events = {
-  oauthConnected: (result: OAuthAuthResult) => void;
   webauthnRegistered: (result: WebAuthnAuthResult) => void;
   nostrConnected: (result: NostrAuthResult) => void;
   web3Connected: (result: Web3AuthResult) => void;

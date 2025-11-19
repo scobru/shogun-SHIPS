@@ -159,7 +159,7 @@ class SHIP_00 implements ISHIP_00 {
       console.log("🔐 Login with key pair...");
 
       // Use Shogun Core loginWithPair (API.md line 324)
-      const authResult = await this.shogun.loginWithPair(seaPair);
+      const authResult = await this.shogun.loginWithPair("", seaPair);
 
       if (!authResult.success) {
         console.log("❌ Login failed:", authResult.error);

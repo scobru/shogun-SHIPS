@@ -115,8 +115,9 @@
     "ethers": "^6.13.5",
     "figlet": "^1.9.3",
     "gun": "git+https://github.com/amark/gun.git",
-    "shogun-core": "^3.3.6",
-    "shogun-ipfs": "^1.1.0"
+    "shogun-core": "^6.0.2",
+    "shogun-ipfs": "^1.1.0",
+    "shogun-relays": "^1.0.4"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
@@ -130,5 +131,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "resolutions": {
+    "@noble/hashes": "1.8.0"
   }
 }

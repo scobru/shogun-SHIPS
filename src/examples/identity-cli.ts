@@ -20,6 +20,8 @@ import { SHIP_00 } from "../implementation/SHIP_00";
 import * as readline from "readline";
 import * as fs from "fs";
 import figlet from "figlet";
+import { forceListUpdate } from "shogun-relays";
+import Gun from "gun";
 
 // ============================================================================
 // CLI Interface
@@ -32,17 +34,22 @@ class IdentityCLI {
   private running: boolean = false;
 
   constructor() {
+    const relays = [
+      "https://shogunnode.scobrudot.dev/gun",
+      "https://peer.wallie.io/gun",
+      "https://gun.defucc.me/gun",
+      "https://lindanode.scobrudot.dev/gun",
+    ];
+
+    const gunInstance = Gun({
+      peers: relays,
+      radisk: false,
+      localStorage: false,
+    });
+
     // Initialize SHIP-00 with hardcoded peers
     this.identity = new SHIP_00({
-      gunOptions: {
-        peers: [
-          "https://peer.wallie.io/gun",
-          "https://v5g5jseqhgkp43lppgregcfbvi.srv.us/gun",
-          "https://relay.shogun-eco.xyz/gun",
-        ],
-        radisk: true,
-        localStorage: false,
-      },
+      gunInstance: gunInstance,
     });
 
     this.rl = readline.createInterface({

@@ -2,18 +2,16 @@
  * SHIP-04: Multi-Modal Authentication Implementation
  *
  * Extends SHIP-00 to provide alternative authentication methods.
- * Integrates existing Shogun Core plugins for OAuth, WebAuthn, Nostr, and Web3.
+ * Integrates existing Shogun Core plugins for WebAuthn, Nostr, and Web3.
  *
  * Based on:
  * - SHIP-00 for identity foundation
- * - Shogun Core Plugins (OAuth, WebAuthn, Nostr, Web3)
- * - External OAuth providers (Google, GitHub, etc.)
+ * - Shogun Core Plugins (WebAuthn, Nostr, Web3)
  * - WebAuthn API for biometric auth
  * - Nostr protocol for decentralized social
  * - Web3 providers (MetaMask, WalletConnect)
  *
  * Features:
- * ✅ OAuth authentication (Google, GitHub, Discord, etc.)
  * ✅ WebAuthn/Passkeys (biometric, hardware keys)
  * ✅ Nostr protocol integration
  * ✅ Web3 wallet connection (MetaMask, etc.)
@@ -27,8 +25,6 @@
 import type { AuthResult, ISHIP_00, SEAPair } from "../interfaces/ISHIP_00";
 import type {
   ISHIP_04,
-  OAuthProvider,
-  OAuthAuthResult,
   WebAuthnAuthResult,
   NostrAuthResult,
   Web3AuthResult,
@@ -39,7 +35,6 @@ import { AuthMethod } from "../interfaces/ISHIP_04"; // Import enum as value
 
 // Shogun Core plugins
 import {
-  OAuthPlugin,
   WebauthnPlugin,
   NostrConnectorPlugin,
   Web3ConnectorPlugin,
@@ -69,7 +64,6 @@ class SHIP_04 implements ISHIP_04 {
   } as const;
 
   // Plugins
-  private oauthPlugin: OAuthPlugin | null = null;
   private webauthnPlugin: WebauthnPlugin | null = null;
   private nostrPlugin: NostrConnectorPlugin | null = null;
   private web3Plugin: Web3ConnectorPlugin | null = null;
@@ -80,11 +74,9 @@ class SHIP_04 implements ISHIP_04 {
   constructor(identity: ISHIP_00, config: SHIP_04_Config = {}) {
     this.identity = identity;
     this.config = {
-      enableOAuth: config.enableOAuth ?? true,
       enableWebAuthn: config.enableWebAuthn ?? true,
       enableNostr: config.enableNostr ?? true,
       enableWeb3: config.enableWeb3 ?? true,
-      oauthProviders: config.oauthProviders,
       webAuthnRpName: config.webAuthnRpName ?? "Shogun",
       webAuthnRpId: config.webAuthnRpId,
       nostrRelays: config.nostrRelays ?? [
@@ -114,29 +106,21 @@ class SHIP_04 implements ISHIP_04 {
       }
 
       // Initialize enabled plugins
-      if (this.config.enableOAuth && this.config.oauthProviders) {
-        this.oauthPlugin = new OAuthPlugin({
-          providers: this.config.oauthProviders as any,
-        });
-        this.oauthPlugin.initialize(shogunCore);
-        console.log("✅ OAuth plugin initialized");
-      }
-
       if (this.config.enableWebAuthn && typeof window !== "undefined") {
         this.webauthnPlugin = new WebauthnPlugin();
-        this.webauthnPlugin.initialize(shogunCore);
+        // WebAuthn plugin doesn't need explicit initialization
         console.log("✅ WebAuthn plugin initialized");
       }
 
       if (this.config.enableNostr) {
         this.nostrPlugin = new NostrConnectorPlugin();
-        this.nostrPlugin.initialize(shogunCore);
+        // Nostr plugin doesn't need explicit initialization
         console.log("✅ Nostr plugin initialized");
       }
 
       if (this.config.enableWeb3) {
         this.web3Plugin = new Web3ConnectorPlugin();
-        this.web3Plugin.initialize(shogunCore);
+        // Web3 plugin doesn't need explicit initialization
         console.log("✅ Web3 plugin initialized");
       }
 
@@ -155,110 +139,6 @@ class SHIP_04 implements ISHIP_04 {
     return this.identity;
   }
 
-  // ========================================================================
-  // OAUTH AUTHENTICATION
-  // ========================================================================
-
-  async loginWithOAuth(
-    provider: OAuthProvider,
-    redirectUri?: string
-  ): Promise<OAuthAuthResult> {
-    this.ensureInitialized();
-
-    if (!this.oauthPlugin) {
-      return {
-        success: false,
-        error: "OAuth plugin not initialized",
-      };
-    }
-
-    try {
-      console.log(`🔐 Logging in with ${provider}...`);
-
-      // Use OAuth plugin's login method
-      // Note: This initiates OAuth flow and returns auth URL for redirect
-      const authResult = await this.oauthPlugin.login(provider);
-
-      if (!authResult.success) {
-        return {
-          success: false,
-          error: authResult.error || "OAuth login failed",
-        };
-      }
-
-      this.currentAuthMethod = "oauth" as any;
-      await this.saveAuthMethod("oauth" as any);
-
-      console.log(`✅ OAuth flow initiated for ${provider}`);
-      console.log(`💡 Complete authentication with handleOAuthCallback()`);
-
-      return {
-        success: true,
-        userPub: authResult.userPub,
-        username: authResult.username,
-        derivedAddress: (authResult as any).derivedAddress,
-        provider: provider as any,
-      };
-    } catch (error: any) {
-      console.error("❌ OAuth login error:", error);
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
-  }
-
-  async handleOAuthCallback(
-    code: string,
-    provider: OAuthProvider
-  ): Promise<OAuthAuthResult> {
-    this.ensureInitialized();
-
-    if (!this.oauthPlugin) {
-      return {
-        success: false,
-        error: "OAuth plugin not initialized",
-      };
-    }
-
-    try {
-      // Complete OAuth flow with code
-      const result = await this.oauthPlugin.completeOAuth(provider, code);
-
-      if (!result.success) {
-        return {
-          success: false,
-          error: result.error || "OAuth callback failed",
-        };
-      }
-
-      console.log(`✅ OAuth callback completed for ${provider}`);
-
-      return {
-        success: true,
-        provider,
-        email: result.userInfo?.email,
-        profilePicture: result.userInfo?.picture,
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
-  }
-
-  isOAuthAvailable(provider?: OAuthProvider): boolean {
-    if (!this.oauthPlugin) return false;
-
-    const availableProviders = this.oauthPlugin.getAvailableProviders();
-
-    if (provider) {
-      return availableProviders.includes(provider);
-    }
-
-    return availableProviders.length > 0;
-  }
 
   // ========================================================================
   // WEBAUTHN AUTHENTICATION
@@ -582,16 +462,6 @@ class SHIP_04 implements ISHIP_04 {
       configured: true,
       lastUsed: this.currentAuthMethod === "password" ? Date.now() : undefined,
     });
-
-    // OAuth
-    if (this.config.enableOAuth) {
-      methods.push({
-        method: "oauth" as any,
-        available: this.oauthPlugin !== null,
-        configured: this.config.oauthProviders !== undefined,
-        lastUsed: this.currentAuthMethod === "oauth" ? Date.now() : undefined,
-      });
-    }
 
     // WebAuthn
     if (this.config.enableWebAuthn) {
